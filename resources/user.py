@@ -1,5 +1,6 @@
+import datetime
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
 from flask_restful import Resource
 from mysql_connection import get_connection
 from mysql.connector import Error
@@ -79,7 +80,7 @@ class UserRegisterResource(Resource) :
                 'access_token' : access_token},200
 
 
-class UserLoginResource(Resource):
+class UserLoginResource(Resource) :
 
     def post(self) :
 
@@ -111,7 +112,7 @@ class UserLoginResource(Resource):
             connection.close()
             return {"error" : str(e)}, 500
         
-        # 회원가입을 안한경우, 리스트에 데이터가 없다.
+        # 회원가입을 안 한 경우, 리스트에 데이터가 없다.
         if len(result_list) == 0 :
             return {"error" : "회원가입을 하세요."}, 400
         
@@ -129,8 +130,23 @@ class UserLoginResource(Resource):
             return {"error" : "비번이 맞지않습니다."}, 406
         
         # JWT 토큰을 만들어서, 클라이언트에게 응답한다.
-        access_token = create_access_token(result_list[0]['id'])
+        access_token = create_access_token(result_list[0]['id'], expires_delta = datetime.timedelta(minutes = 2))
 
         return {"result" : "success",
                 "access_token" : access_token}, 200
+
+
+jwt_blocklist = set()
+
+class UserLogoutResource(Resource) :
+
+    @jwt_required()
+    def delete(self) :
+
+        jti = get_jwt()['jti']
+        print(jti)
+
+        jwt_blocklist.add(jti)
+
+        return {"result" : "success"}, 200
 
