@@ -145,7 +145,7 @@ class RecipeResource(Resource) :
     def get(self, recipe_id) :
         
         print(recipe_id)
-
+        
         # 1. 클라이언트로부터 데이터를 받아온다.
         #    이미 경로에 들어있는, 레시피 아이디를 받아왔다.
         #    위의 recipe_id 라는 변수에 이미 있다. 
